@@ -1,0 +1,2 @@
+# rmqclient
+go rabbitmq client
