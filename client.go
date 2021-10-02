@@ -3,11 +3,12 @@ package rmq
 import (
 	"bytes"
 	"fmt"
-	"github.com/streadway/amqp"
-	"go.uber.org/zap"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/streadway/amqp"
+	"go.uber.org/zap"
 )
 
 type RQClient struct {
