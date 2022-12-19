@@ -23,6 +23,6 @@ func main() {
 	rmqClient.DeclareExchange(channel)
 	message := "foobar"
 	if err := rmqClient.PublishTask(channel, []byte(message)); err != nil {
-		fmt.Errorf("error occured %s", message)
+		logger.Errorf("error occured %s", message)
 	}
 }
