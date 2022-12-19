@@ -2,11 +2,20 @@ package main
 
 import (
 	"fmt"
+	"github.com/sirupsen/logrus"
 	"rmqclient/pkg/rmq"
 )
 
 func main() {
-	rmqClient := rmq.New()
+	logger := logrus.New()
+	connectionUrl := fmt.Sprintf(
+		"amqp://%s:%s@%s:%s",
+		"user",
+		"password",
+		"host",
+		"port",
+	)
+	rmqClient := rmq.New(connectionUrl, "test_queue", logger)
 	connection := rmqClient.Connect()
 	defer rmqClient.CloseConnection(connection)
 	channel := rmqClient.CreateChannel(connection)
