@@ -1,4 +1,4 @@
-module rmqclient
+module github.com/vspaz/rmqclient
 
 go 1.18
 

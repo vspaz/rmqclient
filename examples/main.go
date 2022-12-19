@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/sirupsen/logrus"
-	"rmqclient/pkg/rmq"
+	"github.com/vspaz/rmqclient/pkg/rmq"
 )
 
 func main() {
