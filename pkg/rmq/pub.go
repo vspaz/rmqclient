@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func (r *RmqConfig) PublishTask(channel *amqp.Channel, task []byte) error {
+func (r *RmqClient) PublishTask(channel *amqp.Channel, task []byte) error {
 	msg := amqp.Publishing{
 		DeliveryMode: amqp.Persistent,
 		Timestamp:    time.Now(),

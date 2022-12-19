@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type RmqConfig struct {
+type RmqClient struct {
 	connectionUrl string
 	kind          string
 	durable       bool
@@ -22,8 +22,8 @@ type RmqConfig struct {
 	logger *logrus.Logger
 }
 
-func New(connectionUrl string, queueName string, logger *logrus.Logger) *RmqConfig {
-	return &RmqConfig{
+func New(connectionUrl string, queueName string, logger *logrus.Logger) *RmqClient {
+	return &RmqClient{
 		connectionUrl: connectionUrl,
 		kind:          "direct",
 		durable:       true,
@@ -40,7 +40,7 @@ func New(connectionUrl string, queueName string, logger *logrus.Logger) *RmqConf
 	}
 }
 
-func (r *RmqConfig) Connect() *amqp.Connection {
+func (r *RmqClient) Connect() *amqp.Connection {
 	r.logger.Debugf("connecting to rabbitmq '%s'", r.connectionUrl)
 	connection, err := amqp.DialConfig(r.connectionUrl, amqp.Config{Heartbeat: time.Second * r.heartBeat})
 	if err != nil {
@@ -50,7 +50,7 @@ func (r *RmqConfig) Connect() *amqp.Connection {
 	return connection
 }
 
-func (r *RmqConfig) CreateChannel(connection *amqp.Connection) *amqp.Channel {
+func (r *RmqClient) CreateChannel(connection *amqp.Connection) *amqp.Channel {
 	r.logger.Info("trying to create a channel")
 	channel, err := connection.Channel()
 	if err != nil {
@@ -60,7 +60,7 @@ func (r *RmqConfig) CreateChannel(connection *amqp.Connection) *amqp.Channel {
 	return channel
 }
 
-func (r *RmqConfig) DeclareExchange(chanel *amqp.Channel) {
+func (r *RmqClient) DeclareExchange(chanel *amqp.Channel) {
 	if err := chanel.ExchangeDeclare(
 		r.exchangeName,
 		r.kind,
@@ -74,7 +74,7 @@ func (r *RmqConfig) DeclareExchange(chanel *amqp.Channel) {
 	}
 }
 
-func (r *RmqConfig) BindQueue(channel *amqp.Channel) {
+func (r *RmqClient) BindQueue(channel *amqp.Channel) {
 	if err := channel.QueueBind(
 		r.queueName,
 		r.queueName,
@@ -86,14 +86,14 @@ func (r *RmqConfig) BindQueue(channel *amqp.Channel) {
 	}
 }
 
-func (r *RmqConfig) CloseConnection(connection *amqp.Connection) {
+func (r *RmqClient) CloseConnection(connection *amqp.Connection) {
 	err := connection.Close()
 	if err != nil {
 		r.logger.Errorf("failed to close connection")
 	}
 }
 
-func (r *RmqConfig) CloseChannel(channel *amqp.Channel) {
+func (r *RmqClient) CloseChannel(channel *amqp.Channel) {
 	err := channel.Close()
 	if err != nil {
 		r.logger.Errorf("failed to close channel")
