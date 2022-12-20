@@ -2,7 +2,7 @@ BINARY_NAME=rmq
 
 all: build
 build:
-	go build -o $(BINARY_NAME) examples/main.go
+	go build -o $(BINARY_NAME) examples/producer/main.go
 
 .PHONY: clean
 clean:
