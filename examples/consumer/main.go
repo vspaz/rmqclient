@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"github.com/vspaz/rmqclient/pkg/rmq"
+	"github.com/vspaz/simplelogger/pkg/logging"
 )
 
 func main() {
-	logger := logrus.New()
+	logger := logging.GetTextLogger("info").Logger
 	// default test configuration for local testing
 	connectionUrl := fmt.Sprintf(
 		"amqp://%s:%s@%s:%s",
