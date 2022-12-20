@@ -21,3 +21,17 @@ func (r *RmqClient) Consume(channel *amqp.Channel, consumerName string) <-chan a
 	}
 	return consumerChannel
 }
+
+func (r *RmqClient) DeclareQueue(channel *amqp.Channel) {
+	if _, err := channel.QueueDeclare(
+		r.queueName,
+		r.durable,
+		r.autoDelete,
+		r.exclusive,
+		r.noWait,
+		nil,
+	); err != nil {
+		r.logger.Error("failed to declare queue: ", r.queueName)
+		os.Exit(-1)
+	}
+}
