@@ -8,12 +8,13 @@ import (
 
 func main() {
 	logger := logrus.New()
+	// default test configuration for local testing
 	connectionUrl := fmt.Sprintf(
 		"amqp://%s:%s@%s:%s",
 		"user",
 		"password",
 		"host",
-		"port",
+		"5672",
 	)
 	rmqClient := rmq.New(connectionUrl, "test_queue", logger)
 	connection := rmqClient.Connect()

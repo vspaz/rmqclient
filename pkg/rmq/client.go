@@ -46,7 +46,7 @@ func (r *RmqClient) Connect() *amqp.Connection {
 	if err != nil {
 		r.logger.Fatalf("failed to establish connection at '%s'", r.connectionUrl)
 	}
-	r.logger.Info("connection to rabbitmq established atэ: OK")
+	r.logger.Info("connection to rabbitmq established at: OK")
 	return connection
 }
 

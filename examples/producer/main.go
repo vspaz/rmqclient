@@ -13,7 +13,7 @@ func main() {
 		"user",
 		"password",
 		"host",
-		"port",
+		"5672",
 	)
 	rmqClient := rmq.New(connectionUrl, "test_queue", logger)
 	connection := rmqClient.Connect()
