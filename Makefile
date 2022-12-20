@@ -1,12 +1,15 @@
-BINARY_NAME=rmq
+PRODUCER_NAME=producer
+CONSUMER_NAME=consumer
 
-all: build
-build:
-	go build -o $(BINARY_NAME) examples/producer/main.go
+build-producer:
+	go build -o $(PRODUCER_NAME) examples/producer/main.go
+
+build-consumer:
+	go build -o $(CONSUMER_NAME) examples/consumer/main.go
 
 .PHONY: clean
 clean:
-	rm -f $(BINARY_NAME)
+	rm -f $(PRODUCER_NAME) $(CONSUMER_NAME)
 
 .PHONY: test
 test:

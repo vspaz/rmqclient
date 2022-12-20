@@ -23,7 +23,7 @@ func main() {
 	rmqClient.DeclareExchange(channel)
 	rmqClient.DeclareQueue(channel)
 	rmqClient.BindQueue(channel)
-	for message := range rmqClient.Consume(channel, "") {
+	for message := range rmqClient.Consume(channel, "consumer1") {
 		logger.Infof("message recieved: %s", string(message.Body))
 	}
 }
