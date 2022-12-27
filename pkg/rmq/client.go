@@ -15,7 +15,6 @@ type RmqClient struct {
 	noWait        bool
 	exclusive     bool
 
-	queueName string
 	heartBeat time.Duration
 
 	channel    *amqp.Channel
@@ -23,7 +22,7 @@ type RmqClient struct {
 	logger     *logrus.Logger
 }
 
-func New(connectionUrl string, queueName string, logger *logrus.Logger) *RmqClient {
+func New(connectionUrl string, logger *logrus.Logger) *RmqClient {
 	return &RmqClient{
 		connectionUrl: connectionUrl,
 		kind:          "direct",
@@ -33,7 +32,6 @@ func New(connectionUrl string, queueName string, logger *logrus.Logger) *RmqClie
 		noWait:        false,
 		exclusive:     false,
 
-		queueName: queueName,
 		heartBeat: 60 * time.Second,
 
 		logger: logger,
@@ -74,15 +72,15 @@ func (r *RmqClient) DeclareExchange(exchangeName string) {
 	}
 }
 
-func (r *RmqClient) BindQueue(exchangeName, routingKey string) {
+func (r *RmqClient) BindQueue(queueName, exchangeName, routingKey string) {
 	if err := r.channel.QueueBind(
-		r.queueName,
+		queueName,
 		routingKey,
 		exchangeName,
 		r.noWait,
 		nil,
 	); err != nil {
-		r.logger.Fatalf("failed to bind queue and exchange: '%s'", r.queueName)
+		r.logger.Fatalf("failed to bind queue and exchange: '%s'", queueName)
 	}
 }
 

@@ -5,9 +5,9 @@ import (
 	"os"
 )
 
-func (r *RmqClient) Consume(channel *amqp.Channel, consumerName string) <-chan amqp.Delivery {
-	consumerChannel, err := channel.Consume(
-		r.queueName,
+func (r *RmqClient) Consume(queueName, consumerName string) <-chan amqp.Delivery {
+	consumerChannel, err := r.channel.Consume(
+		queueName,
 		consumerName,
 		true,
 		r.exclusive,
@@ -22,16 +22,16 @@ func (r *RmqClient) Consume(channel *amqp.Channel, consumerName string) <-chan a
 	return consumerChannel
 }
 
-func (r *RmqClient) DeclareQueue(channel *amqp.Channel) {
-	if _, err := channel.QueueDeclare(
-		r.queueName,
+func (r *RmqClient) DeclareQueue(queueName string) {
+	if _, err := r.channel.QueueDeclare(
+		queueName,
 		r.durable,
 		r.autoDelete,
 		r.exclusive,
 		r.noWait,
 		nil,
 	); err != nil {
-		r.logger.Error("failed to declare queue: ", r.queueName)
+		r.logger.Error("failed to declare queue: ", queueName)
 		os.Exit(-1)
 	}
 }
