@@ -18,8 +18,8 @@ type Broker struct {
 	noWait     bool
 	exclusive  bool
 
-	logger     *logrus.Logger
-	connection *amqp.Connection
+	logger *logrus.Logger
+	client *Client
 }
 
 func NewBroker(queueName, exchangeName, routingKey string, client *Client) *Broker {
@@ -35,14 +35,14 @@ func NewBroker(queueName, exchangeName, routingKey string, client *Client) *Brok
 		noWait:     false,
 		exclusive:  false,
 
-		logger:     client.logger,
-		connection: client.connection,
+		logger: client.logger,
+		client: client,
 	}
 }
 
-func (b *Broker) CreateChannel(connection *amqp.Connection) {
+func (b *Broker) CreateChannel() {
 	b.logger.Info("trying to create a broker")
-	channel, err := connection.Channel()
+	channel, err := b.client.connection.Channel()
 	if err != nil {
 		b.logger.Fatalf("failed to create broker")
 	}
