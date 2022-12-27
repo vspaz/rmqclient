@@ -1,9 +1,8 @@
 import json
 import logging
-import os
 
 import aiomisc
-from aio_pika import DeliveryMode, IncomingMessage
+from aio_pika import IncomingMessage
 
 from .client import RmqClient
 
@@ -22,14 +21,8 @@ async def listen_for_messages(rmq_client: RmqClient):
 
 
 def run():
-    config = dict(
-        user=os.getenv("RABBITMQ_USER", "guest"),
-        password=os.getenv("RABBITMQ_PASSWORD", "guest"),
-        host=os.getenv("RABBITMQ_HOST", "localhost"),
-        port=os.getenv("RABBITMQ_PORT", "5672"),
-    )
     with aiomisc.entrypoint() as loop:
-        rmq_client = RmqClient(config=config)
+        rmq_client = RmqClient()
         logging.info("rabbitmq client initialized")
         loop.create_task(listen_for_messages(rmq_client=rmq_client))
         loop.run_forever()
