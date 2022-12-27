@@ -89,7 +89,7 @@ func (c *Channel) BindQueue() {
 	}
 }
 
-func (c *Channel) CloseChannel() {
+func (c *Channel) Close() {
 	err := c.channel.Close()
 	if err != nil {
 		c.logger.Errorf("failed to close broker")

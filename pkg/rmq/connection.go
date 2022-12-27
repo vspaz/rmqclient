@@ -22,7 +22,7 @@ func NewConnection(connectionUrl string, logger *logrus.Logger) *Connection {
 	}
 }
 
-func (c *Connection) Connect() {
+func (c *Connection) Create() {
 	c.logger.Debugf("connecting to rabbitmq '%s'", c.connectionUrl)
 	connection, err := amqp.DialConfig(c.connectionUrl, amqp.Config{Heartbeat: time.Second * c.heartBeat})
 	if err != nil {
@@ -32,7 +32,7 @@ func (c *Connection) Connect() {
 	c.connection = connection
 }
 
-func (c *Connection) CloseConnection() {
+func (c *Connection) Close() {
 	err := c.connection.Close()
 	if err != nil {
 		c.logger.Errorf("failed to close connection")

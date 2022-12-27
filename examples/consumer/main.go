@@ -16,13 +16,13 @@ func main() {
 		"localhost",
 		"5672",
 	)
-	conn := rmq.NewConnection(connectionUrl, logger)
-	conn.Connect()
-	defer conn.CloseConnection()
+	connection := rmq.NewConnection(connectionUrl, logger)
+	connection.Create()
+	defer connection.Close()
 
-	channel := rmq.NewChannel(conn, "test", "test", "test")
+	channel := rmq.NewChannel(connection, "test", "test", "test")
 	channel.Create()
-	defer channel.CloseChannel()
+	defer channel.Close()
 	channel.DeclareExchange("direct", true)
 	channel.DeclareQueue()
 	channel.BindQueue()
