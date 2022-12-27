@@ -16,15 +16,16 @@ func main() {
 		"host",
 		"5672",
 	)
-	rmqClient := rmq.New(connectionUrl, logger)
+	rmqClient := rmq.NewClient(connectionUrl, logger)
 	rmqClient.Connect()
 	defer rmqClient.CloseConnection()
-	rmqClient.CreateChannel("test", "test", "test")
-	defer rmqClient.CloseChannel()
-	rmqClient.DeclareExchange()
-	rmqClient.DeclareQueue("test")
-	rmqClient.BindQueue()
-	for message := range rmqClient.Consume("test", "consumer1") {
+	broker := rmq.NewBroker("test", "test", "test", rmqClient)
+	broker.CreateChannel()
+	defer broker.CloseChannel()
+	broker.DeclareExchange()
+	broker.DeclareQueue()
+	broker.BindQueue()
+	for message := range broker.Consume("consumer1") {
 		logger.Infof("message recieved: %s", string(message.Body))
 	}
 }

@@ -3,6 +3,7 @@ package rmq
 import (
 	"github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
+	"os"
 )
 
 type Broker struct {
@@ -61,6 +62,20 @@ func (b *Broker) DeclareExchange() {
 		nil,
 	); err != nil {
 		b.logger.Fatalf("failed to create exchange: '%s'", b.exchangeName)
+	}
+}
+
+func (b *Broker) DeclareQueue() {
+	if _, err := b.channel.QueueDeclare(
+		b.queueName,
+		b.durable,
+		b.autoDelete,
+		b.exclusive,
+		b.noWait,
+		nil,
+	); err != nil {
+		b.logger.Error("failed to declare queue: ", b.queueName)
+		os.Exit(-1)
 	}
 }
 

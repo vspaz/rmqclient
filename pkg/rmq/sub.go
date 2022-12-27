@@ -5,33 +5,19 @@ import (
 	"os"
 )
 
-func (c *Client) Consume(queueName, consumerName string) <-chan amqp.Delivery {
-	consumerChannel, err := c.broker.channel.Consume(
-		queueName,
+func (b *Broker) Consume(consumerName string) <-chan amqp.Delivery {
+	consumerChannel, err := b.channel.Consume(
+		b.queueName,
 		consumerName,
 		true,
-		c.exclusive,
+		b.exclusive,
 		false,
-		c.noWait,
+		b.noWait,
 		nil,
 	)
 	if err != nil {
-		c.logger.Error("failed to consume")
+		b.logger.Error("failed to consume")
 		os.Exit(-1)
 	}
 	return consumerChannel
-}
-
-func (c *Client) DeclareQueue(queueName string) {
-	if _, err := c.broker.channel.QueueDeclare(
-		queueName,
-		c.durable,
-		c.autoDelete,
-		c.exclusive,
-		c.noWait,
-		nil,
-	); err != nil {
-		c.logger.Error("failed to declare queue: ", queueName)
-		os.Exit(-1)
-	}
 }
