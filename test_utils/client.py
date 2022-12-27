@@ -7,9 +7,7 @@ from aio_pika import DeliveryMode, Message, connect
 
 
 class RmqClient():
-
-    def __init__(self, config):
-        self._conn = "amqp://{user}:{password}@{host}:{port}/".format(**config)
+    _conn = "amqp://guest:guest@localhost:5672/"
 
     async def _establish_connection(self):
         return await connect(
