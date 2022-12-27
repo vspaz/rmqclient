@@ -2,8 +2,7 @@ import asyncio
 import json
 import logging
 
-
-from aio_pika import DeliveryMode, Message, connect, ExchangeType
+from aio_pika import DeliveryMode, ExchangeType, Message, connect
 
 
 class RmqClient():
@@ -27,7 +26,7 @@ class RmqClient():
     async def publish(self, body, routing_key):
         connection = await self._establish_connection()
         channel = await connection.channel()
-        exchange  = await channel.declare_exchange(
+        exchange = await channel.declare_exchange(
             name="test",
             type=ExchangeType.DIRECT,
             durable=True,

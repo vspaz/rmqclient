@@ -3,8 +3,8 @@ import logging
 
 import aiomisc
 from aio_pika import IncomingMessage
-
 from client import RmqClient
+
 
 async def listen_for_messages(rmq_client: RmqClient):
     async def on_message_received(message: IncomingMessage):
