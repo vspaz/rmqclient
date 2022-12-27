@@ -11,37 +11,30 @@ type Broker struct {
 	queueName    string
 	exchangeName string
 	routingKey   string
+
+	kind       string
+	durable    bool
+	autoDelete bool
+	internal   bool
+	noWait     bool
+	exclusive  bool
+
+	logger *logrus.Logger
 }
 
 type Client struct {
 	connectionUrl string
-	kind          string
-	durable       bool
-	autoDelete    bool
-	internal      bool
-	noWait        bool
-	exclusive     bool
-
-	heartBeat time.Duration
+	heartBeat     time.Duration
 
 	connection *amqp.Connection
 	logger     *logrus.Logger
-	broker     *Broker
 }
 
 func New(connectionUrl string, logger *logrus.Logger) *Client {
 	return &Client{
 		connectionUrl: connectionUrl,
-		kind:          "direct",
-		durable:       true,
-		autoDelete:    false,
-		internal:      false,
-		noWait:        false,
-		exclusive:     false,
-
-		heartBeat: 60 * time.Second,
-
-		logger: logger,
+		heartBeat:     60 * time.Second,
+		logger:        logger,
 	}
 }
 
@@ -55,44 +48,53 @@ func (c *Client) Connect() {
 	c.connection = connection
 }
 
-func (c *Client) CreateChannel(queueName, exchangeName, routingKey string) {
+func (c *Client) CreateChannel(queueName, exchangeName, routingKey string) *Broker {
 	c.logger.Info("trying to create a broker")
 	channel, err := c.connection.Channel()
 	if err != nil {
 		c.logger.Fatalf("failed to create broker")
 	}
 	c.logger.Info("broker created: OK")
-	c.broker = &Broker{
+	return &Broker{
 		channel:      channel,
 		queueName:    queueName,
 		exchangeName: exchangeName,
 		routingKey:   routingKey,
+
+		kind:       "direct",
+		durable:    true,
+		autoDelete: false,
+		internal:   false,
+		noWait:     false,
+		exclusive:  false,
+
+		logger: c.logger,
 	}
 }
 
-func (c *Client) DeclareExchange() {
-	if err := c.broker.channel.ExchangeDeclare(
-		c.broker.exchangeName,
-		c.kind,
-		c.durable,
-		c.autoDelete,
-		c.internal,
-		c.noWait,
+func (b *Broker) DeclareExchange() {
+	if err := b.channel.ExchangeDeclare(
+		b.exchangeName,
+		b.kind,
+		b.durable,
+		b.autoDelete,
+		b.internal,
+		b.noWait,
 		nil,
 	); err != nil {
-		c.logger.Fatalf("failed to create exchange: '%s'", c.broker.exchangeName)
+		b.logger.Fatalf("failed to create exchange: '%s'", c.broker.exchangeName)
 	}
 }
 
-func (c *Client) BindQueue() {
-	if err := c.broker.channel.QueueBind(
-		c.broker.queueName,
-		c.broker.routingKey,
-		c.broker.exchangeName,
-		c.noWait,
+func (b *Broker) BindQueue() {
+	if err := b.channel.QueueBind(
+		b.queueName,
+		b.routingKey,
+		b.exchangeName,
+		b.noWait,
 		nil,
 	); err != nil {
-		c.logger.Fatalf("failed to bind queue and exchange: '%s'", c.broker.queueName)
+		b.logger.Fatalf("failed to bind queue and exchange: '%s'", c.broker.queueName)
 	}
 }
 
@@ -103,9 +105,9 @@ func (c *Client) CloseConnection() {
 	}
 }
 
-func (c *Client) CloseChannel() {
-	err := c.broker.channel.Close()
+func (b *Broker) CloseChannel() {
+	err := b.channel.Close()
 	if err != nil {
-		c.logger.Errorf("failed to close broker")
+		b.logger.Errorf("failed to close broker")
 	}
 }
