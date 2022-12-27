@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/vspaz/rmqclient/pkg/rmq"
 	"github.com/vspaz/simplelogger/pkg/logging"
 )
@@ -16,11 +17,10 @@ func main() {
 	channel.Create()
 	defer channel.Close()
 	channel.DeclareExchange("direct", true)
-	// good practice to create a queue in case it does not exist.
-	//channel.DeclareQueue()
+	channel.DeclareQueue(true)
 	channel.BindQueue()
-	message := "foobar"
-	if err := channel.Publish([]byte(message), "text/plain"); err != nil {
+	message, _ := json.Marshal(map[string]string{"go": "test"})
+	if err := channel.Publish(message, "application/json"); err != nil {
 		logger.Errorf("error occured %s", message)
 	}
 }

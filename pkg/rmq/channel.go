@@ -63,10 +63,10 @@ func (c *Channel) DeclareExchange(kind string, durable bool) {
 	}
 }
 
-func (c *Channel) DeclareQueue() {
+func (c *Channel) DeclareQueue(durable bool) {
 	if _, err := c.channel.QueueDeclare(
 		c.queueName,
-		c.durable,
+		durable,
 		c.autoDelete,
 		c.exclusive,
 		c.noWait,

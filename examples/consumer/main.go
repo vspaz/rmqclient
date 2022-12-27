@@ -16,7 +16,7 @@ func main() {
 	channel.Create()
 	defer channel.Close()
 	channel.DeclareExchange("direct", true)
-	channel.DeclareQueue()
+	channel.DeclareQueue(true)
 	channel.BindQueue()
 	for message := range channel.Consume("consumer1") {
 		logger.Infof("message recieved: %s", string(message.Body))
