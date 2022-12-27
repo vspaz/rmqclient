@@ -19,11 +19,11 @@ func main() {
 	rmqClient := rmq.New(connectionUrl, logger)
 	rmqClient.Connect()
 	defer rmqClient.CloseConnection()
-	rmqClient.CreateChannel()
+	rmqClient.CreateChannel("test", "test", "test")
 	defer rmqClient.CloseChannel()
-	rmqClient.DeclareExchange("test")
+	rmqClient.DeclareExchange()
 	rmqClient.DeclareQueue("test")
-	rmqClient.BindQueue("test", "test", "test")
+	rmqClient.BindQueue()
 	for message := range rmqClient.Consume("test", "consumer1") {
 		logger.Infof("message recieved: %s", string(message.Body))
 	}
