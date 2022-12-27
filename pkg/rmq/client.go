@@ -6,14 +6,14 @@ import (
 	"time"
 )
 
-type Channel struct {
+type Broker struct {
 	channel      *amqp.Channel
 	queueName    string
 	exchangeName string
 	routingKey   string
 }
 
-type RmqClient struct {
+type Client struct {
 	connectionUrl string
 	kind          string
 	durable       bool
@@ -26,11 +26,11 @@ type RmqClient struct {
 
 	connection *amqp.Connection
 	logger     *logrus.Logger
-	channel    *Channel
+	broker     *Broker
 }
 
-func New(connectionUrl string, logger *logrus.Logger) *RmqClient {
-	return &RmqClient{
+func New(connectionUrl string, logger *logrus.Logger) *Client {
+	return &Client{
 		connectionUrl: connectionUrl,
 		kind:          "direct",
 		durable:       true,
@@ -45,24 +45,24 @@ func New(connectionUrl string, logger *logrus.Logger) *RmqClient {
 	}
 }
 
-func (r *RmqClient) Connect() {
-	r.logger.Debugf("connecting to rabbitmq '%s'", r.connectionUrl)
-	connection, err := amqp.DialConfig(r.connectionUrl, amqp.Config{Heartbeat: time.Second * r.heartBeat})
+func (c *Client) Connect() {
+	c.logger.Debugf("connecting to rabbitmq '%s'", c.connectionUrl)
+	connection, err := amqp.DialConfig(c.connectionUrl, amqp.Config{Heartbeat: time.Second * c.heartBeat})
 	if err != nil {
-		r.logger.Fatalf("failed to establish connection at '%s'", r.connectionUrl)
+		c.logger.Fatalf("failed to establish connection at '%s'", c.connectionUrl)
 	}
-	r.logger.Info("connection to rabbitmq established at: OK")
-	r.connection = connection
+	c.logger.Info("connection to rabbitmq established at: OK")
+	c.connection = connection
 }
 
-func (r *RmqClient) CreateChannel(queueName, exchangeName, routingKey string) {
-	r.logger.Info("trying to create a channel")
-	channel, err := r.connection.Channel()
+func (c *Client) CreateChannel(queueName, exchangeName, routingKey string) {
+	c.logger.Info("trying to create a broker")
+	channel, err := c.connection.Channel()
 	if err != nil {
-		r.logger.Fatalf("failed to create channel")
+		c.logger.Fatalf("failed to create broker")
 	}
-	r.logger.Info("channel created: OK")
-	r.channel = &Channel{
+	c.logger.Info("broker created: OK")
+	c.broker = &Broker{
 		channel:      channel,
 		queueName:    queueName,
 		exchangeName: exchangeName,
@@ -70,42 +70,42 @@ func (r *RmqClient) CreateChannel(queueName, exchangeName, routingKey string) {
 	}
 }
 
-func (r *RmqClient) DeclareExchange() {
-	if err := r.channel.channel.ExchangeDeclare(
-		r.channel.exchangeName,
-		r.kind,
-		r.durable,
-		r.autoDelete,
-		r.internal,
-		r.noWait,
+func (c *Client) DeclareExchange() {
+	if err := c.broker.channel.ExchangeDeclare(
+		c.broker.exchangeName,
+		c.kind,
+		c.durable,
+		c.autoDelete,
+		c.internal,
+		c.noWait,
 		nil,
 	); err != nil {
-		r.logger.Fatalf("failed to create exchange: '%s'", r.channel.exchangeName)
+		c.logger.Fatalf("failed to create exchange: '%s'", c.broker.exchangeName)
 	}
 }
 
-func (r *RmqClient) BindQueue() {
-	if err := r.channel.channel.QueueBind(
-		r.channel.queueName,
-		r.channel.routingKey,
-		r.channel.exchangeName,
-		r.noWait,
+func (c *Client) BindQueue() {
+	if err := c.broker.channel.QueueBind(
+		c.broker.queueName,
+		c.broker.routingKey,
+		c.broker.exchangeName,
+		c.noWait,
 		nil,
 	); err != nil {
-		r.logger.Fatalf("failed to bind queue and exchange: '%s'", r.channel.queueName)
+		c.logger.Fatalf("failed to bind queue and exchange: '%s'", c.broker.queueName)
 	}
 }
 
-func (r *RmqClient) CloseConnection() {
-	err := r.connection.Close()
+func (c *Client) CloseConnection() {
+	err := c.connection.Close()
 	if err != nil {
-		r.logger.Errorf("failed to close connection")
+		c.logger.Errorf("failed to close connection")
 	}
 }
 
-func (r *RmqClient) CloseChannel() {
-	err := r.channel.channel.Close()
+func (c *Client) CloseChannel() {
+	err := c.broker.channel.Close()
 	if err != nil {
-		r.logger.Errorf("failed to close channel")
+		c.logger.Errorf("failed to close broker")
 	}
 }
