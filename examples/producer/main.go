@@ -16,14 +16,15 @@ func main() {
 		"5672",
 	)
 	rmqClient := rmq.New(connectionUrl, logger)
-	rmqClient.Connect()
+	connection := rmqClient.Connect()
 	defer rmqClient.CloseConnection()
-	rmqClient.CreateChannel("test", "test", "test")
-	defer rmqClient.CloseChannel()
-	rmqClient.DeclareExchange()
-	rmqClient.BindQueue()
+	broker := rmqClient.CreateBroker("test", "test", "test")
+	broker.CreateChannel(connection)
+	defer broker.CloseChannel()
+	broker.DeclareExchange()
+	broker.BindQueue()
 	message := "foobar"
-	if err := rmqClient.PublishTask([]byte(message), "text/plain"); err != nil {
+	if err := broker.PublishTask([]byte(message), "text/plain"); err != nil {
 		logger.Errorf("error occured %s", message)
 	}
 }
