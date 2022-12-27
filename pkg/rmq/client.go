@@ -6,6 +6,13 @@ import (
 	"time"
 )
 
+type Channel struct {
+	channel      *amqp.Channel
+	queueName    string
+	exchangeName string
+	routingKey   string
+}
+
 type RmqClient struct {
 	connectionUrl string
 	kind          string
@@ -17,9 +24,9 @@ type RmqClient struct {
 
 	heartBeat time.Duration
 
-	channel    *amqp.Channel
 	connection *amqp.Connection
 	logger     *logrus.Logger
+	channel    *Channel
 }
 
 func New(connectionUrl string, logger *logrus.Logger) *RmqClient {
@@ -48,19 +55,24 @@ func (r *RmqClient) Connect() {
 	r.connection = connection
 }
 
-func (r *RmqClient) CreateChannel() {
+func (r *RmqClient) CreateChannel(queueName, exchangeName, routingKey string) {
 	r.logger.Info("trying to create a channel")
 	channel, err := r.connection.Channel()
 	if err != nil {
 		r.logger.Fatalf("failed to create channel")
 	}
 	r.logger.Info("channel created: OK")
-	r.channel = channel
+	r.channel = &Channel{
+		channel:      channel,
+		queueName:    queueName,
+		exchangeName: exchangeName,
+		routingKey:   routingKey,
+	}
 }
 
-func (r *RmqClient) DeclareExchange(exchangeName string) {
-	if err := r.channel.ExchangeDeclare(
-		exchangeName,
+func (r *RmqClient) DeclareExchange() {
+	if err := r.channel.channel.ExchangeDeclare(
+		r.channel.exchangeName,
 		r.kind,
 		r.durable,
 		r.autoDelete,
@@ -68,19 +80,19 @@ func (r *RmqClient) DeclareExchange(exchangeName string) {
 		r.noWait,
 		nil,
 	); err != nil {
-		r.logger.Fatalf("failed to create exchange: '%s'", exchangeName)
+		r.logger.Fatalf("failed to create exchange: '%s'", c.exchangeName)
 	}
 }
 
-func (r *RmqClient) BindQueue(queueName, exchangeName, routingKey string) {
-	if err := r.channel.QueueBind(
-		queueName,
-		routingKey,
-		exchangeName,
+func (r *RmqClient) BindQueue() {
+	if err := r.channel.channel.QueueBind(
+		r.channel.queueName,
+		r.channel.routingKey,
+		r.channel.exchangeName,
 		r.noWait,
 		nil,
 	); err != nil {
-		r.logger.Fatalf("failed to bind queue and exchange: '%s'", queueName)
+		r.logger.Fatalf("failed to bind queue and exchange: '%s'", c.queueName)
 	}
 }
 
@@ -92,7 +104,7 @@ func (r *RmqClient) CloseConnection() {
 }
 
 func (r *RmqClient) CloseChannel() {
-	err := r.channel.Close()
+	err := r.channel.channel.Close()
 	if err != nil {
 		r.logger.Errorf("failed to close channel")
 	}
