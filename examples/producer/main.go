@@ -23,7 +23,7 @@ func main() {
 	rmqClient.DeclareExchange("test")
 	rmqClient.BindQueue("test", "test", "test")
 	message := "foobar"
-	if err := rmqClient.PublishTask([]byte(message), "text/plain"); err != nil {
+	if err := rmqClient.PublishTask([]byte(message), "test", "test", "text/plain"); err != nil {
 		logger.Errorf("error occured %s", message)
 	}
 }

@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func (r *RmqClient) PublishTask(task []byte, contentType string) error {
+func (r *RmqClient) PublishTask(task []byte, exchangeName, routingKey, contentType string) error {
 	msg := amqp.Publishing{
 		DeliveryMode: amqp.Persistent,
 		ContentType:  contentType,
@@ -14,8 +14,8 @@ func (r *RmqClient) PublishTask(task []byte, contentType string) error {
 	}
 
 	err := r.channel.Publish(
-		r.exchangeName,
-		r.routingKey,
+		exchangeName,
+		routingKey,
 		false,
 		false,
 		msg,
