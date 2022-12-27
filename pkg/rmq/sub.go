@@ -5,18 +5,18 @@ import (
 	"os"
 )
 
-func (b *Broker) Consume(consumerName string) <-chan amqp.Delivery {
-	consumerChannel, err := b.channel.Consume(
-		b.queueName,
+func (c *Channel) Consume(consumerName string) <-chan amqp.Delivery {
+	consumerChannel, err := c.channel.Consume(
+		c.queueName,
 		consumerName,
 		true,
-		b.exclusive,
+		c.exclusive,
 		false,
-		b.noWait,
+		c.noWait,
 		nil,
 	)
 	if err != nil {
-		b.logger.Error("failed to consume")
+		c.logger.Error("failed to consume")
 		os.Exit(-1)
 	}
 	return consumerChannel

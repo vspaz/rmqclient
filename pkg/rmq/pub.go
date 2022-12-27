@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func (b *Broker) PublishTask(task []byte, contentType string) error {
+func (c *Channel) PublishTask(task []byte, contentType string) error {
 	msg := amqp.Publishing{
 		DeliveryMode: amqp.Persistent,
 		ContentType:  contentType,
@@ -13,15 +13,15 @@ func (b *Broker) PublishTask(task []byte, contentType string) error {
 		Body:         task,
 	}
 
-	err := b.channel.Publish(
-		b.exchangeName,
-		b.routingKey,
+	err := c.channel.Publish(
+		c.exchangeName,
+		c.routingKey,
 		false,
 		false,
 		msg,
 	)
 	if err != nil {
-		b.logger.Error("failed to publish message")
+		c.logger.Error("failed to publish message")
 	}
 	return err
 }

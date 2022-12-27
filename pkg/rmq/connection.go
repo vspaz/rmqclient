@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type Client struct {
+type Connection struct {
 	connectionUrl string
 	heartBeat     time.Duration
 
@@ -14,15 +14,15 @@ type Client struct {
 	logger     *logrus.Logger
 }
 
-func NewClient(connectionUrl string, logger *logrus.Logger) *Client {
-	return &Client{
+func NewConnection(connectionUrl string, logger *logrus.Logger) *Connection {
+	return &Connection{
 		connectionUrl: connectionUrl,
 		heartBeat:     60 * time.Second,
 		logger:        logger,
 	}
 }
 
-func (c *Client) Connect() {
+func (c *Connection) Connect() {
 	c.logger.Debugf("connecting to rabbitmq '%s'", c.connectionUrl)
 	connection, err := amqp.DialConfig(c.connectionUrl, amqp.Config{Heartbeat: time.Second * c.heartBeat})
 	if err != nil {
@@ -32,7 +32,7 @@ func (c *Client) Connect() {
 	c.connection = connection
 }
 
-func (c *Client) CloseConnection() {
+func (c *Connection) CloseConnection() {
 	err := c.connection.Close()
 	if err != nil {
 		c.logger.Errorf("failed to close connection")
