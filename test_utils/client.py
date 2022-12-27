@@ -3,7 +3,7 @@ import json
 import logging
 
 
-from aio_pika import DeliveryMode, Message, connect
+from aio_pika import DeliveryMode, Message, connect, ExchangeType
 
 
 class RmqClient():
@@ -27,12 +27,19 @@ class RmqClient():
     async def publish(self, body, routing_key):
         connection = await self._establish_connection()
         channel = await connection.channel()
+        exchange  = await channel.declare_exchange(
+            name="test",
+            type=ExchangeType.DIRECT,
+            durable=True,
+        )
+        queue = await channel.declare_queue(name="test", durable=True)
+        await queue.bind(exchange=exchange)
         message = Message(
             body=json.dumps(obj=body).encode(),
             content_type="application/json",
             delivery_mode=DeliveryMode.PERSISTENT,
         )
-        await channel.default_exchange.publish(
+        await exchange.publish(
             message=message,
             routing_key=routing_key,
         )

@@ -17,7 +17,7 @@ func main() {
 	defer channel.Close()
 	channel.DeclareExchange("direct", true)
 	// good practice to create a queue in case it does not exist.
-	channel.DeclareQueue()
+	//channel.DeclareQueue()
 	channel.BindQueue()
 	message := "foobar"
 	if err := channel.Publish([]byte(message), "text/plain"); err != nil {

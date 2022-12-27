@@ -2,19 +2,19 @@ import logging
 
 import aiomisc
 
-from . client import RmqClient
+from client import RmqClient
 
 
 def run():
     with aiomisc.entrypoint() as loop:
         rmq_client = RmqClient()
         logging.info("rabbitmq client initialized")
-        loop.create_task(rmq_client.publish(
+        loop.run_until_complete(rmq_client.publish(
             body={"foo": "bar"},
             routing_key="test",
             ),
         )
-        loop.run_forever()
+
 
 
 def main():

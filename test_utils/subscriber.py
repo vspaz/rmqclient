@@ -4,14 +4,14 @@ import logging
 import aiomisc
 from aio_pika import IncomingMessage
 
-from .client import RmqClient
+from client import RmqClient
 
 async def listen_for_messages(rmq_client: RmqClient):
     async def on_message_received(message: IncomingMessage):
         async with message.process(requeue=True):
             try:
                 resp = json.loads(message.body)
-                logging.debug(f"message received: {resp!r}")
+                logging.error(f"message received: {resp!r}")
             except Exception as err:
                 logging.error(err)
 
