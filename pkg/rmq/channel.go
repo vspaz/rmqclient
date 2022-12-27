@@ -23,14 +23,12 @@ type Channel struct {
 	conn   *Connection
 }
 
-func NewChannel(queueName, exchangeName, routingKey string, conn *Connection) *Channel {
+func NewChannel(conn *Connection, queueName, exchangeName, routingKey string) *Channel {
 	return &Channel{
 		queueName:    queueName,
 		exchangeName: exchangeName,
 		routingKey:   routingKey,
 
-		kind:       "direct",
-		durable:    true,
 		autoDelete: false,
 		internal:   false,
 		noWait:     false,
@@ -51,11 +49,11 @@ func (c *Channel) Create() {
 	c.channel = channel
 }
 
-func (c *Channel) DeclareExchange() {
+func (c *Channel) DeclareExchange(kind string, durable bool) {
 	if err := c.channel.ExchangeDeclare(
 		c.exchangeName,
-		c.kind,
-		c.durable,
+		kind,
+		durable,
 		c.autoDelete,
 		c.internal,
 		c.noWait,

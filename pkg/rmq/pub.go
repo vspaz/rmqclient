@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func (c *Channel) PublishTask(task []byte, contentType string) error {
+func (c *Channel) Publish(task []byte, contentType string) error {
 	msg := amqp.Publishing{
 		DeliveryMode: amqp.Persistent,
 		ContentType:  contentType,

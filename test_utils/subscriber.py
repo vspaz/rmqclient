@@ -7,7 +7,7 @@ import aiomisc
 from aio_pika import DeliveryMode, IncomingMessage, Message, connect
 
 
-class PubSub():
+class RmqClient():
 
     def __init__(self, config):
         self._conn = "amqp://{user}:{password}@{host}:{port}/".format(**config)
@@ -27,7 +27,7 @@ class PubSub():
         logging.info(f"{queue_name} starting to consume messages")
         await queue.consume(on_message)
 
-    async def publish(self, body, route_key):
+    async def publish(self, body, routing_key):
         connection = await self._establish_connection()
         channel = await connection.channel()
         message = Message(
@@ -35,13 +35,16 @@ class PubSub():
             content_type="application/json",
             delivery_mode=DeliveryMode.PERSISTENT,
         )
-        await channel.default_exchange.publish(message, routing_key=route_key)
+        await channel.default_exchange.publish(
+            message=message,
+            routing_key=routing_key,
+        )
         logging.debug(f"sent: {message!r}")
         await connection.close()
         return {"status": "accepted"}
 
 
-async def listen_for_messages(rmq_client: PubSub):
+async def listen_for_messages(rmq_client: RmqClient):
     async def on_message_received(message: IncomingMessage):
         async with message.process(requeue=True):
             try:
@@ -63,7 +66,7 @@ def run():
         port=os.getenv("RABBITMQ_PORT", "5672"),
     )
     with aiomisc.entrypoint() as loop:
-        rmq_client = PubSub(config=config)
+        rmq_client = RmqClient(config=config)
         logging.info("rabbitmq client initialized")
         loop.create_task(listen_for_messages(rmq_client=rmq_client))
         loop.run_forever()

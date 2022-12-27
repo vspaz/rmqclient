@@ -11,19 +11,19 @@ func main() {
 	// default test configuration for local testing
 	connectionUrl := fmt.Sprintf(
 		"amqp://%s:%s@%s:%s",
-		"user",
-		"password",
-		"host",
+		"guest",
+		"guest",
+		"localhost",
 		"5672",
 	)
 	conn := rmq.NewConnection(connectionUrl, logger)
 	conn.Connect()
 	defer conn.CloseConnection()
 
-	channel := rmq.NewChannel("test", "test", "test", conn)
+	channel := rmq.NewChannel(conn, "test", "test", "test")
 	channel.Create()
 	defer channel.CloseChannel()
-	channel.DeclareExchange()
+	channel.DeclareExchange("direct", true)
 	channel.DeclareQueue()
 	channel.BindQueue()
 	for message := range channel.Consume("consumer1") {

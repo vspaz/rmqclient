@@ -10,23 +10,24 @@ func main() {
 	logger := logging.GetTextLogger("info").Logger
 	connectionUrl := fmt.Sprintf(
 		"amqp://%s:%s@%s:%s",
-		"user",
-		"password",
-		"host",
+		"guest",
+		"guest",
+		"localhost",
 		"5672",
 	)
 	conn := rmq.NewConnection(connectionUrl, logger)
 	conn.Connect()
 	defer conn.CloseConnection()
 
-	broker := rmq.NewChannel("test", "test", "test", conn)
-	broker.Create()
-	defer broker.CloseChannel()
-	broker.DeclareExchange()
-	broker.DeclareQueue()
-	broker.BindQueue()
+	channel := rmq.NewChannel(conn, "test", "test", "test")
+	channel.Create()
+	defer channel.CloseChannel()
+	channel.DeclareExchange("direct", true)
+	// good practice to create a queue in case it does not exist.
+	channel.DeclareQueue()
+	channel.BindQueue()
 	message := "foobar"
-	if err := broker.PublishTask([]byte(message), "text/plain"); err != nil {
+	if err := channel.Publish([]byte(message), "text/plain"); err != nil {
 		logger.Errorf("error occured %s", message)
 	}
 }
