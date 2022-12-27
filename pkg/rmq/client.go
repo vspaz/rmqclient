@@ -15,16 +15,15 @@ type RmqClient struct {
 	noWait        bool
 	exclusive     bool
 
-	exchangeName string
-	queueName    string
-	routingKey   string
-	heartBeat    time.Duration
+	queueName string
+	heartBeat time.Duration
 
-	channel *amqp.Channel
-	logger  *logrus.Logger
+	channel    *amqp.Channel
+	connection *amqp.Connection
+	logger     *logrus.Logger
 }
 
-func New(connectionUrl string, queueName string, exchangeName string, routingKey string, logger *logrus.Logger) *RmqClient {
+func New(connectionUrl string, queueName string, logger *logrus.Logger) *RmqClient {
 	return &RmqClient{
 		connectionUrl: connectionUrl,
 		kind:          "direct",
@@ -34,28 +33,26 @@ func New(connectionUrl string, queueName string, exchangeName string, routingKey
 		noWait:        false,
 		exclusive:     false,
 
-		exchangeName: exchangeName,
-		queueName:    queueName,
-		routingKey:   routingKey,
-		heartBeat:    60 * time.Second,
+		queueName: queueName,
+		heartBeat: 60 * time.Second,
 
 		logger: logger,
 	}
 }
 
-func (r *RmqClient) Connect() *amqp.Connection {
+func (r *RmqClient) Connect() {
 	r.logger.Debugf("connecting to rabbitmq '%s'", r.connectionUrl)
 	connection, err := amqp.DialConfig(r.connectionUrl, amqp.Config{Heartbeat: time.Second * r.heartBeat})
 	if err != nil {
 		r.logger.Fatalf("failed to establish connection at '%s'", r.connectionUrl)
 	}
 	r.logger.Info("connection to rabbitmq established at: OK")
-	return connection
+	r.connection = connection
 }
 
-func (r *RmqClient) CreateChannel(connection *amqp.Connection) {
+func (r *RmqClient) CreateChannel() {
 	r.logger.Info("trying to create a channel")
-	channel, err := connection.Channel()
+	channel, err := r.connection.Channel()
 	if err != nil {
 		r.logger.Fatalf("failed to create channel")
 	}
@@ -63,9 +60,9 @@ func (r *RmqClient) CreateChannel(connection *amqp.Connection) {
 	r.channel = channel
 }
 
-func (r *RmqClient) DeclareExchange() {
+func (r *RmqClient) DeclareExchange(exchangeName string) {
 	if err := r.channel.ExchangeDeclare(
-		r.exchangeName,
+		exchangeName,
 		r.kind,
 		r.durable,
 		r.autoDelete,
@@ -73,15 +70,15 @@ func (r *RmqClient) DeclareExchange() {
 		r.noWait,
 		nil,
 	); err != nil {
-		r.logger.Fatalf("failed to create exchange: '%s'", r.exchangeName)
+		r.logger.Fatalf("failed to create exchange: '%s'", exchangeName)
 	}
 }
 
-func (r *RmqClient) BindQueue() {
+func (r *RmqClient) BindQueue(exchangeName, routingKey string) {
 	if err := r.channel.QueueBind(
 		r.queueName,
-		r.routingKey,
-		r.exchangeName,
+		routingKey,
+		exchangeName,
 		r.noWait,
 		nil,
 	); err != nil {
@@ -89,8 +86,8 @@ func (r *RmqClient) BindQueue() {
 	}
 }
 
-func (r *RmqClient) CloseConnection(connection *amqp.Connection) {
-	err := connection.Close()
+func (r *RmqClient) CloseConnection() {
+	err := r.connection.Close()
 	if err != nil {
 		r.logger.Errorf("failed to close connection")
 	}
