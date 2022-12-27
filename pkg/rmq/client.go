@@ -80,7 +80,7 @@ func (r *RmqClient) DeclareExchange() {
 		r.noWait,
 		nil,
 	); err != nil {
-		r.logger.Fatalf("failed to create exchange: '%s'", c.exchangeName)
+		r.logger.Fatalf("failed to create exchange: '%s'", r.channel.exchangeName)
 	}
 }
 
@@ -92,7 +92,7 @@ func (r *RmqClient) BindQueue() {
 		r.noWait,
 		nil,
 	); err != nil {
-		r.logger.Fatalf("failed to bind queue and exchange: '%s'", c.queueName)
+		r.logger.Fatalf("failed to bind queue and exchange: '%s'", r.channel.queueName)
 	}
 }
 
