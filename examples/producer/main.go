@@ -15,14 +15,15 @@ func main() {
 		"host",
 		"5672",
 	)
-	rmqClient := rmq.New(connectionUrl, "test_queue", logger)
+	rmqClient := rmq.New(connectionUrl, "test", "test", "test", logger)
 	connection := rmqClient.Connect()
 	defer rmqClient.CloseConnection(connection)
 	channel := rmqClient.CreateChannel(connection)
 	defer rmqClient.CloseChannel(channel)
 	rmqClient.DeclareExchange(channel)
+	rmqClient.BindQueue(channel)
 	message := "foobar"
-	if err := rmqClient.PublishTask(channel, []byte(message)); err != nil {
+	if err := rmqClient.PublishTask(channel, []byte(message), "text/plain"); err != nil {
 		logger.Errorf("error occured %s", message)
 	}
 }

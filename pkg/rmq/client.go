@@ -17,12 +17,13 @@ type RmqClient struct {
 
 	exchangeName string
 	queueName    string
+	routingKey   string
 	heartBeat    time.Duration
 
 	logger *logrus.Logger
 }
 
-func New(connectionUrl string, queueName string, logger *logrus.Logger) *RmqClient {
+func New(connectionUrl string, queueName string, exchangeName string, routingKey string, logger *logrus.Logger) *RmqClient {
 	return &RmqClient{
 		connectionUrl: connectionUrl,
 		kind:          "direct",
@@ -32,8 +33,9 @@ func New(connectionUrl string, queueName string, logger *logrus.Logger) *RmqClie
 		noWait:        false,
 		exclusive:     false,
 
-		exchangeName: queueName,
+		exchangeName: exchangeName,
 		queueName:    queueName,
+		routingKey:   routingKey,
 		heartBeat:    60 * time.Second,
 
 		logger: logger,
@@ -77,7 +79,7 @@ func (r *RmqClient) DeclareExchange(chanel *amqp.Channel) {
 func (r *RmqClient) BindQueue(channel *amqp.Channel) {
 	if err := channel.QueueBind(
 		r.queueName,
-		r.queueName,
+		r.routingKey,
 		r.exchangeName,
 		r.noWait,
 		nil,
