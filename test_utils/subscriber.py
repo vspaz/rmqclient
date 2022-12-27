@@ -16,8 +16,9 @@ async def listen_for_messages(rmq_client: RmqClient):
                 logging.error(err)
 
     await rmq_client.subscribe(
-        queue_name="test_queue",
-        on_message=on_message_received)
+        queue_name="test",
+        on_message=on_message_received,
+    )
 
 
 def run():
