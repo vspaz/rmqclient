@@ -20,7 +20,8 @@ type RmqClient struct {
 	routingKey   string
 	heartBeat    time.Duration
 
-	logger *logrus.Logger
+	channel *amqp.Channel
+	logger  *logrus.Logger
 }
 
 func New(connectionUrl string, queueName string, exchangeName string, routingKey string, logger *logrus.Logger) *RmqClient {
@@ -52,18 +53,18 @@ func (r *RmqClient) Connect() *amqp.Connection {
 	return connection
 }
 
-func (r *RmqClient) CreateChannel(connection *amqp.Connection) *amqp.Channel {
+func (r *RmqClient) CreateChannel(connection *amqp.Connection) {
 	r.logger.Info("trying to create a channel")
 	channel, err := connection.Channel()
 	if err != nil {
 		r.logger.Fatalf("failed to create channel")
 	}
 	r.logger.Info("channel created: OK")
-	return channel
+	r.channel = channel
 }
 
-func (r *RmqClient) DeclareExchange(chanel *amqp.Channel) {
-	if err := chanel.ExchangeDeclare(
+func (r *RmqClient) DeclareExchange() {
+	if err := r.channel.ExchangeDeclare(
 		r.exchangeName,
 		r.kind,
 		r.durable,
@@ -76,8 +77,8 @@ func (r *RmqClient) DeclareExchange(chanel *amqp.Channel) {
 	}
 }
 
-func (r *RmqClient) BindQueue(channel *amqp.Channel) {
-	if err := channel.QueueBind(
+func (r *RmqClient) BindQueue() {
+	if err := r.channel.QueueBind(
 		r.queueName,
 		r.routingKey,
 		r.exchangeName,
@@ -95,8 +96,8 @@ func (r *RmqClient) CloseConnection(connection *amqp.Connection) {
 	}
 }
 
-func (r *RmqClient) CloseChannel(channel *amqp.Channel) {
-	err := channel.Close()
+func (r *RmqClient) CloseChannel() {
+	err := r.channel.Close()
 	if err != nil {
 		r.logger.Errorf("failed to close channel")
 	}
