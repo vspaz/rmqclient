@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/vspaz/rmqclient/pkg/rmq"
 	"github.com/vspaz/simplelogger/pkg/logging"
 )
@@ -9,14 +8,7 @@ import (
 func main() {
 	logger := logging.GetTextLogger("info").Logger
 	// default test configuration for local testing
-	connectionUrl := fmt.Sprintf(
-		"amqp://%s:%s@%s:%s",
-		"guest",
-		"guest",
-		"localhost",
-		"5672",
-	)
-	connection := rmq.NewConnection(connectionUrl, logger)
+	connection := rmq.NewConnection("amqp://guest:guest@localhost:5672", logger)
 	connection.Create()
 	defer connection.Close()
 
