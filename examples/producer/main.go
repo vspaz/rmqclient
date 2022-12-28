@@ -16,8 +16,9 @@ func main() {
 	channel := rmq.NewChannel(connection, "test", "test", "test")
 	channel.Create()
 	defer channel.Close()
-	channel.DeclareExchange("direct", true)
-	channel.DeclareQueue(true)
+	channel.DeclareExchange("direct")
+	// it's a good practice to create a queue in case it doesn't exist yet.
+	channel.DeclareQueue()
 	channel.BindQueue()
 	message, _ := json.Marshal(map[string]string{"go": "test"})
 	if err := channel.Publish(message, "application/json"); err != nil {

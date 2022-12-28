@@ -15,8 +15,8 @@ func main() {
 	channel := rmq.NewChannel(connection, "test", "test", "test")
 	channel.Create()
 	defer channel.Close()
-	channel.DeclareExchange("direct", true)
-	channel.DeclareQueue(true)
+	channel.DeclareExchange("direct")
+	channel.DeclareQueue()
 	channel.BindQueue()
 	for message := range channel.Consume("consumer1") {
 		logger.Infof("message recieved: %s", string(message.Body))

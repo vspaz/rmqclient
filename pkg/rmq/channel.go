@@ -33,6 +33,7 @@ func NewChannel(conn *Connection, queueName, exchangeName, routingKey string) *C
 		internal:   false,
 		noWait:     false,
 		exclusive:  false,
+		durable:    true,
 
 		logger: conn.logger,
 		conn:   conn,
@@ -49,11 +50,11 @@ func (c *Channel) Create() {
 	c.channel = channel
 }
 
-func (c *Channel) DeclareExchange(kind string, durable bool) {
+func (c *Channel) DeclareExchange(kind string) {
 	if err := c.channel.ExchangeDeclare(
 		c.exchangeName,
 		kind,
-		durable,
+		c.durable,
 		c.autoDelete,
 		c.internal,
 		c.noWait,
@@ -63,10 +64,10 @@ func (c *Channel) DeclareExchange(kind string, durable bool) {
 	}
 }
 
-func (c *Channel) DeclareQueue(durable bool) {
+func (c *Channel) DeclareQueue() {
 	if _, err := c.channel.QueueDeclare(
 		c.queueName,
-		durable,
+		c.durable,
 		c.autoDelete,
 		c.exclusive,
 		c.noWait,
