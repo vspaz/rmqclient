@@ -3,7 +3,10 @@ import logging
 
 import aiomisc
 from aio_pika import IncomingMessage
+import uvloop
 from client import RmqClient
+
+uvloop.install()
 
 
 async def listen_for_messages(rmq_client: RmqClient):

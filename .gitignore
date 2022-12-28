@@ -1,2 +1,5 @@
 # IDE's
 .idea/
+
+# pyc
+test_utils/__pycache__/
