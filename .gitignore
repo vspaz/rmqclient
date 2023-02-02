@@ -3,3 +3,7 @@
 
 # pyc
 test_utils/__pycache__/
+
+# exclude binaries
+producer
+consumer
