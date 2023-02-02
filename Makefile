@@ -2,10 +2,10 @@ PRODUCER_NAME=producer
 CONSUMER_NAME=consumer
 
 build-producer:
-	go build -o $(PRODUCER_NAME) examples/producer/main.go
+	go build -ldflags="-s -w" -o $(PRODUCER_NAME) examples/producer/main.go; upx producer
 
 build-consumer:
-	go build -o $(CONSUMER_NAME) examples/consumer/main.go
+	go build -ldflags="-s -w" -o $(CONSUMER_NAME) examples/consumer/main.go; upx consumer
 
 .PHONY: clean
 clean:
