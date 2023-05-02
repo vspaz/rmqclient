@@ -9,9 +9,8 @@ import (
 type Connection struct {
 	connectionUrl string
 	heartBeat     time.Duration
-
-	connection *amqp.Connection
-	logger     *logrus.Logger
+	connection    *amqp.Connection
+	logger        *logrus.Logger
 }
 
 func NewConnection(connectionUrl string, logger *logrus.Logger) *Connection {
