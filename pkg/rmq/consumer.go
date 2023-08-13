@@ -1,11 +1,11 @@
 package rmq
 
 import (
-	"github.com/streadway/amqp"
+	"github.com/rabbitmq/amqp091-go"
 	"os"
 )
 
-func (c *Channel) Consume(consumerName string) <-chan amqp.Delivery {
+func (c *Channel) Consume(consumerName string) <-chan amqp091.Delivery {
 	consumerChannel, err := c.channel.Consume(
 		c.queueName,
 		consumerName,

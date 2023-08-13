@@ -1,13 +1,13 @@
 package rmq
 
 import (
+	"github.com/rabbitmq/amqp091-go"
 	"github.com/sirupsen/logrus"
-	"github.com/streadway/amqp"
 	"os"
 )
 
 type Channel struct {
-	channel      *amqp.Channel
+	channel      *amqp091.Channel
 	queueName    string
 	exchangeName string
 	routingKey   string

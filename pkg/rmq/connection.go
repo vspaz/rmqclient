@@ -1,15 +1,15 @@
 package rmq
 
 import (
+	"github.com/rabbitmq/amqp091-go"
 	"github.com/sirupsen/logrus"
-	"github.com/streadway/amqp"
 	"time"
 )
 
 type Connection struct {
 	connectionUrl string
 	heartBeat     time.Duration
-	connection    *amqp.Connection
+	connection    *amqp091.Connection
 	logger        *logrus.Logger
 }
 
@@ -23,7 +23,7 @@ func NewConnection(connectionUrl string, logger *logrus.Logger) *Connection {
 
 func (c *Connection) Create() {
 	c.logger.Debugf("connecting to rabbitmq '%s'", c.connectionUrl)
-	connection, err := amqp.DialConfig(c.connectionUrl, amqp.Config{Heartbeat: time.Second * c.heartBeat})
+	connection, err := amqp091.DialConfig(c.connectionUrl, amqp091.Config{Heartbeat: time.Second * c.heartBeat})
 	if err != nil {
 		c.logger.Fatalf("failed to establish connection at '%s'", c.connectionUrl)
 	}
