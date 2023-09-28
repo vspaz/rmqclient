@@ -4,7 +4,7 @@ TARGET_CONSUMER=consumer
 LDFLAGS="-s -w"
 
 build-producer:
-	go build -ldflags=$(LDGLAGS) -o $(TARGET_PRODUCER) examples/producer/main.go; upx $(TARGET_PRODUCER)
+	go build -ldflags=$(LDFLAGS) -o $(TARGET_PRODUCER) examples/producer/main.go; upx $(TARGET_PRODUCER)
 
 build-consumer:
 	go build -ldflags=$(LDFLAGS) -o $(TARGET_CONSUMER) examples/consumer/main.go; upx $(TARGET_CONSUMER)
