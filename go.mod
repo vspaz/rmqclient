@@ -8,4 +8,4 @@ require (
 	github.com/vspaz/simplelogger v0.1.0
 )
 
-require golang.org/x/sys v0.25.0 // indirect
+require golang.org/x/sys v0.28.0 // indirect
